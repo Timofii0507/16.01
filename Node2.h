@@ -1,4 +1,5 @@
 #ifndef NODE2_H 
+#define NODE2_H
 
 class Node {
 public:
