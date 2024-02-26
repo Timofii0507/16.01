@@ -3,129 +3,135 @@
 
 using namespace std;
 
-template <class T>
-class Queue {
+template <typename T>
+class SinglyLinkedList {
 private:
-    T* arr;
-    int size;
-    int front, rear;
+    struct Node {
+        T data;
+        Node* next;
+        Node(const T& newData) : data(newData), next(nullptr) {}
+    };
+
+    Node* head;
+    Node* tail;
+
 public:
-    Queue(int s) {
-        size = s;
-        arr = new T[size];
-        front = rear = -1;
+    SinglyLinkedList() : head(nullptr), tail(nullptr) {}
+
+    ~SinglyLinkedList() {
+        DeleteAll();
     }
 
-    ~Queue() {
-        delete[] arr;
-    }
-
-    bool IsEmpty() {
-        return (front == -1);
-    }
-
-    bool IsFull() {
-        return (rear == size - 1);
-    }
-
-    void Enqueue(T x) {
-        if (IsFull()) {
-            cout << "Черга повна, неможливо додати елемент\n";
+    void AddToHead(const T& data) {
+        Node* newNode = new Node(data);
+        if (!head) {
+            head = newNode;
+            tail = newNode;
         }
         else {
-            rear++;
-            arr[rear] = x;
-            if (front == -1) {
-                front = 0;
-            }
-            cout << "Елемент " << x << " додано в чергу\n";
+            newNode->next = head;
+            head = newNode;
         }
     }
 
-    T Dequeue() {
-        if (IsEmpty()) {
-            cout << "Черга порожня, неможливо видалити елемент\n";
-            return 0;
+    void AddToTail(const T& data) {
+        Node* newNode = new Node(data);
+        if (!head) {
+            head = newNode;
+            tail = newNode;
         }
         else {
-            T x = arr[front];
-            front++;
-            if (front > rear) {
-                front = rear = -1;
-            }
-            cout << "Елемент " << x << " видалено з черги\n";
-            return x;
+            tail->next = newNode;
+            tail = newNode;
         }
     }
 
-    void Show() {
-        if (IsEmpty()) {
-            cout << "Черга порожня, немає елементів для відображення\n";
+    void DeleteFromHead() {
+        if (!head) {
+            cout << "Список порожній. Немає елементів для видалення з початку." << endl;
+            return;
         }
-        else {
-            cout << "Елементи черги: ";
-            for (int i = front; i <= rear; i++) {
-                cout << arr[i] << " ";
-            }
-            cout << "\n";
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+        if (!head) {
+            tail = nullptr;
         }
+    }
+
+    void DeleteFromTail() {
+        if (!head) {
+            cout << "Список порожній. Немає елементів для видалення з кінця." << endl;
+            return;
+        }
+        if (head == tail) {
+            delete head;
+            head = nullptr;
+            tail = nullptr;
+            return;
+        }
+        Node* temp = head;
+        while (temp->next != tail) {
+            temp = temp->next;
+        }
+        delete tail;
+        tail = temp;
+        tail->next = nullptr;
+    }
+
+    void DeleteAll() {
+        while (head) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
+        tail = nullptr;
+    }
+
+    void Show() const {
+        if (!head) {
+            cout << "Список порожній." << endl;
+            return;
+        }
+        Node* current = head;
+        cout << "Список: ";
+        while (current) {
+            cout << current->data << " ";
+            current = current->next;
+        }
+        cout << endl;
     }
 };
 
-int main()
+int main() 
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    int choice;
-    int element;
-    int size;
-    cout << "Введіть розмір черги: ";
-    cin >> size;
-    Queue<int> q(size);
-    do {
-        cout << "\nВиберіть опцію:\n";
-        cout << "1. Перевірити, чи черга порожня\n";
-        cout << "2. Перевірити, чи черга повна\n";
-        cout << "3. Додати елемент в чергу\n";
-        cout << "4. Видалити елемент з черги\n";
-        cout << "5. Відобразити всі елементи черги\n";
-        cout << "6. Вийти\n";
-        cin >> choice;
-        switch (choice) {
-        case 1:
-            if (q.IsEmpty()) {
-                cout << "Черга порожня\n";
-            }
-            else {
-                cout << "Черга не порожня\n";
-            }
-            break;
-        case 2:
-            if (q.IsFull()) {
-                cout << "Черга повна\n";
-            }
-            else {
-                cout << "Черга не повна\n";
-            }
-            break;
-        case 3:
-            cout << "Введіть елемент, який хочете додати: ";
-            cin >> element;
-            q.Enqueue(element);
-            break;
-        case 4:
-            element = q.Dequeue();
-            break;
-        case 5:
-            q.Show();
-            break;
-        case 6:
-            cout << "До зустірчі\n";
-            break;
-        default:
-            cout << "Неправильний вибір, спробуйте ще раз\n";
-            break;
-        }
-    } while (choice != 6);
+    SinglyLinkedList<int> myList;
+
+    int n;
+    cout << "Введіть кількість елементів: ";
+    cin >> n;
+    cout << "Введіть елементи: ";
+    for (int i = 0; i < n; ++i) {
+        int value;
+        cin >> value;
+        myList.AddToTail(value);
+    }
+
+    myList.Show();
+
+    myList.DeleteFromHead();
+    cout << "Після видалення з початку: ";
+    myList.Show();
+
+    myList.DeleteFromTail();
+    cout << "Після видалення з кінця: ";
+    myList.Show();
+
+    myList.DeleteAll();
+    cout << "Після видалення всіх: ";
+    myList.Show();
+
     return 0;
 }
